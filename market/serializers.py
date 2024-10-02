@@ -1,38 +1,29 @@
 from rest_framework import serializers
 
-from .models import Stock
+from .models import Product,Category
 
 
-class People:
-    def __init__(self,name,age,gender) -> None:
-        self.name = name
-        self.age = age
-        self.gender = gender
-
-
-class PeopleSerializer(serializers.Serializer):
-    name = serializers.CharField()
-    age = serializers.IntegerField()
-    gender = serializers.CharField()
-
-    def validate_name(self,name):
-        return name
-
-    def validate(self, attrs):
-        if attrs['age'] < 18:
-            raise serializers.ValidationError('Возраст должен быть не менее 18')
-        return super().validate(attrs)
+class CategorySerializer(serializers.Serializer):
+    id = serializers.IntegerField(read_only=True)
+    name = serializers.CharField(max_length=255)
+    parent_category = serializers.PrimaryKeyRelatedField(queryset=Category.objects.all(), allow_null=True, required=False)
+    
+    class Meta:
+        model = Category
+        fields = ['id', 'name', 'parent_category']
 
     def create(self, validated_data):
-        return super().create(validated_data)
-    
-    def update(self, instance, validated_data):
-        return super().update(instance, validated_data)
+        return self.Meta.model.objects.create(**validated_data)
+
+    def update(self, validated_data):
+        instance = self.Meta.model.objects.get(pk=validated_data['id'])
+        instance.name = validated_data.get('name', instance.name)
+        instance.parent_category = validated_data.get('parent_category', instance.parent_category)
+        instance.save()
+        return instance
 
 
-class StockSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Stock
-        fields = '__all__'
+
+
         
 

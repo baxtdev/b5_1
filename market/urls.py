@@ -1,6 +1,7 @@
 from django.urls import path,include
 
-from .views import FakeAPIView
+from .views import CategoryListApiView,CategoryDetailApiView
 urlpatterns = [
-    path('api/v1/fake-data/',FakeAPIView.as_view(),name="fake-endpoint"),
+    path('category/',CategoryListApiView.as_view(),name="category"),
+    path('category/<int:pk>/', CategoryDetailApiView.as_view(),name="category-detail"),
 ]
